@@ -1,0 +1,12 @@
+version: '3.3'
+services:
+  postgresql:
+    container_name: andreeacommerce
+    restart: always
+    image: postgres:13.7
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_USER: andreea
+      POSTGRES_PASSWORD: andreea
+      POSTGRES_DB: andreeacommerce
