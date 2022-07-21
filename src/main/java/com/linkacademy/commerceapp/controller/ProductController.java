@@ -31,7 +31,7 @@ public class ProductController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    @GetMapping("/product")
+    @GetMapping("/products")
     public ResponseEntity<List<Product>> findAll() {
         List<Product> searchedProducts = productService.findAll();
 

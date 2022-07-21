@@ -13,13 +13,15 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import javax.validation.constraints.NotNull;
 
 @Configuration
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true)
-public class BasicAuthSecurityConfig {
+public class BasicAuthSecurityConfig implements WebMvcConfigurer  {
 
 
     @NotNull
@@ -45,15 +47,26 @@ public class BasicAuthSecurityConfig {
         auth.inMemoryAuthentication().withUser(userName).password(new BCryptPasswordEncoder().encode(userPassword)).roles("ADMIN_ROLE");
     }
 
+    @Override
+    public void addCorsMappings(CorsRegistry registry) {
+        registry.addMapping("/commerce/api/**")
+                .allowedOrigins("http://localhost:3000")
+                .allowedMethods("*")
+                .allowedHeaders("*")
+                .allowCredentials(false).maxAge(3600);
+    }
+
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http.cors().and().csrf().disable()
-                .authorizeRequests()
+        http
+                .cors().and().csrf().disable()
+                .anonymous();
+//                .authorizeRequests()
 //                .antMatchers(UrlMapping.AUTH + UrlMapping.SIGN_UP).permitAll()
 //                .antMatchers(UrlMapping.AUTH + UrlMapping.LOGIN).permitAll()
 //                .antMatchers(UrlMapping.VALIDATE_JWT).permitAll()
-                .antMatchers("/swagger-ui/**").permitAll()
-                .anyRequest().authenticated().and().httpBasic();
+//                .antMatchers("/swagger-ui/**").permitAll()
+//                .anyRequest().authenticated().and().httpBasic();
 
         return http.build();
     }
