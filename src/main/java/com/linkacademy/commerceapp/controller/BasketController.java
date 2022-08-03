@@ -57,7 +57,7 @@ public class BasketController {
             @RequestBody ItemRequest itemRequest) throws URISyntaxException {
         return ResponseEntity
                 .created(new URI("commerce/api/basket"))
-                .body(basketService.addItem(buyerId,
+                .body(basketService.removeItem(buyerId,
                         itemRequest.getProductId(),
                         itemRequest.getQuantity()));
     }
