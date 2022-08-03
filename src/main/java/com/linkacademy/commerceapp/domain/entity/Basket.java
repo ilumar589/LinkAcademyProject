@@ -1,5 +1,6 @@
 package com.linkacademy.commerceapp.domain.entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -25,5 +26,6 @@ public class Basket extends EntityWithUUID {
     @EqualsAndHashCode.Include
     private UUID buyerId;
     @OneToMany(mappedBy = "basket", cascade = CascadeType.ALL)
+    @JsonManagedReference
     private Set<BasketItem> items = new HashSet<>();
 }

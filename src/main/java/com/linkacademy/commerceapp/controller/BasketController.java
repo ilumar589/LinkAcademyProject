@@ -20,7 +20,7 @@ public class BasketController {
     private final BasketService basketService;
 
     @GetMapping
-    public ResponseEntity<Basket> getBasket(@CookieValue("buyerId") UUID buyerId,  HttpServletResponse httpServletResponse) {
+    public ResponseEntity<Basket> getBasket(@CookieValue(value = "buyerId", required = false) UUID buyerId,  HttpServletResponse httpServletResponse) {
         if (buyerId == null || buyerId.toString().isBlank() || buyerId.toString().isEmpty()) {
             UUID buyerIdentity = UUID.randomUUID();
             buyerId = buyerIdentity;

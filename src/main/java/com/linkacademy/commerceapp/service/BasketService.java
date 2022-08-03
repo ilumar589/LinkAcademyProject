@@ -7,7 +7,6 @@ import com.linkacademy.commerceapp.domain.repository.BasketRepository;
 import com.linkacademy.commerceapp.domain.repository.ProductRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
 
 import javax.transaction.Transactional;
 import java.util.HashSet;
@@ -36,13 +35,13 @@ public class BasketService {
         Basket basket = findOrCreateBasket(buyerId);
 
         Set<BasketItem> basketItems = basket.getItems();
-        basketItems = CollectionUtils.isEmpty(basketItems) ? new HashSet<>() : basketItems;
 
         if (basketItems
                 .stream()
                 .noneMatch(basketItem -> basketItem.getProduct().getId().equals(productId))) {
 
-            basketItems.add(new BasketItem(optionalProduct.get(), quantity));
+            BasketItem basketItem = new BasketItem(optionalProduct.get(), basket, quantity);
+            basketItems.add(basketItem);
         }
 
         basketItems
@@ -67,9 +66,6 @@ public class BasketService {
 
         Set<BasketItem> basketItems = basket.getItems();
 
-        basketItems = CollectionUtils.isEmpty(basketItems) ? new HashSet<>() : basketItems;
-
-        Set<BasketItem> finalBasketItems = basketItems;
         basketItems
                 .stream()
                 .filter(basketItem -> basketItem.getProduct().getId().equals(productId))
@@ -77,7 +73,7 @@ public class BasketService {
                 .ifPresent(basketItem -> {
                     basketItem.setQuantity(basketItem.getQuantity() - quantity);
                     if (basketItem.getQuantity() == 0) {
-                        finalBasketItems.remove(basketItem);
+                        basketItems.remove(basketItem);
                     }
                 });
 
