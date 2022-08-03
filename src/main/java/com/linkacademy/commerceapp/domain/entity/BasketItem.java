@@ -31,7 +31,7 @@ public class BasketItem {
 
     private long quantity;
 
-    public BasketItem(Product product, int quantity) {
+    public BasketItem(Product product, long quantity) {
         this.product = product;
         this.quantity = quantity;
     }

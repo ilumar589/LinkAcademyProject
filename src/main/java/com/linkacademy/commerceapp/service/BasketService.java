@@ -5,7 +5,6 @@ import com.linkacademy.commerceapp.domain.entity.BasketItem;
 import com.linkacademy.commerceapp.domain.entity.Product;
 import com.linkacademy.commerceapp.domain.repository.BasketRepository;
 import com.linkacademy.commerceapp.domain.repository.ProductRepository;
-import com.linkacademy.commerceapp.models.BasketProductTuple;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -23,10 +22,18 @@ public class BasketService {
     private final BasketRepository basketRepository;
     private final ProductRepository productRepository;
 
-    public void addItem(UUID basketId, UUID productId, int quantity) {
-        BasketProductTuple basketProductTuple = validateSentBasketInfo(basketId, productId);
+    public Optional<Basket> findByBuyerId(UUID buyerId) {
+        return basketRepository.findBasketByBuyerId(buyerId);
+    }
 
-        Basket basket = basketProductTuple.getBasket();
+    public Basket addItem(UUID buyerId, UUID productId, long quantity) {
+        Optional<Product> optionalProduct = productRepository.findById(productId);
+
+        if (optionalProduct.isEmpty()) {
+            throw new RuntimeException("No product found with id " + productId);
+        }
+
+        Basket basket = findOrCreateBasket(buyerId);
 
         Set<BasketItem> basketItems = basket.getItems();
         basketItems = CollectionUtils.isEmpty(basketItems) ? new HashSet<>() : basketItems;
@@ -35,7 +42,7 @@ public class BasketService {
                 .stream()
                 .noneMatch(basketItem -> basketItem.getProduct().getId().equals(productId))) {
 
-            basketItems.add(new BasketItem(basketProductTuple.getProduct(), quantity));
+            basketItems.add(new BasketItem(optionalProduct.get(), quantity));
         }
 
         basketItems
@@ -45,12 +52,19 @@ public class BasketService {
                 .ifPresent(basketItem -> basketItem.setQuantity(basketItem.getQuantity() + quantity));
 
         basketRepository.save(basket);
+
+        return basket;
     }
 
-    public void removeItem(UUID basketId, UUID productId, int quantity) {
-        BasketProductTuple basketProductTuple = validateSentBasketInfo(basketId, productId);
+    public Basket removeItem(UUID buyerId, UUID productId, long quantity) {
+        Optional<Product> optionalProduct = productRepository.findById(productId);
 
-        Basket basket = basketProductTuple.getBasket();
+        if (optionalProduct.isEmpty()) {
+            throw new RuntimeException("No product found with id " + productId);
+        }
+
+        Basket basket = findOrCreateBasket(buyerId);
+
         Set<BasketItem> basketItems = basket.getItems();
 
         basketItems = CollectionUtils.isEmpty(basketItems) ? new HashSet<>() : basketItems;
@@ -68,20 +82,12 @@ public class BasketService {
                 });
 
         basketRepository.save(basket);
+
+        return basket;
     }
 
-    private BasketProductTuple validateSentBasketInfo(UUID basketId, UUID productId) {
-        Optional<Basket> optionalBasket = basketRepository.findById(basketId);
-        Optional<Product> optionalProduct = productRepository.findById(productId);
-
-        if (optionalBasket.isEmpty()) {
-            throw new RuntimeException("No basket found with id " + basketId);
-        }
-
-        if (optionalProduct.isEmpty()) {
-            throw new RuntimeException("No product found with id " + productId);
-        }
-
-        return new BasketProductTuple(optionalBasket.get(), optionalProduct.get());
+    public Basket findOrCreateBasket(UUID buyerId) {
+        Optional<Basket> optionalBasket = basketRepository.findBasketByBuyerId(buyerId);
+        return optionalBasket.orElseGet(() -> basketRepository.save(new Basket(buyerId, new HashSet<>())));
     }
 }

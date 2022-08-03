@@ -1,9 +1,9 @@
 package com.linkacademy.commerceapp.domain.entity;
 
 import lombok.AllArgsConstructor;
-import lombok.Getter;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 import org.hibernate.annotations.Type;
 
 import javax.persistence.CascadeType;
@@ -16,12 +16,13 @@ import java.util.UUID;
 
 @Table
 @Entity
-@Getter
-@Setter
+@Data
 @AllArgsConstructor
 @NoArgsConstructor
+@EqualsAndHashCode(callSuper = true ,onlyExplicitlyIncluded = true)
 public class Basket extends EntityWithUUID {
     @Type(type = "pg-uuid")
+    @EqualsAndHashCode.Include
     private UUID buyerId;
     @OneToMany(mappedBy = "basket", cascade = CascadeType.ALL)
     private Set<BasketItem> items = new HashSet<>();
