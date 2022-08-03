@@ -2,6 +2,7 @@ package com.linkacademy.commerceapp.service;
 
 import com.linkacademy.commerceapp.domain.entity.Product;
 import com.linkacademy.commerceapp.domain.repository.ProductRepository;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -12,13 +13,9 @@ import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 @Service
+@AllArgsConstructor
 public class ProductService {
-
     private final ProductRepository productRepository;
-
-    public ProductService(ProductRepository productRepository) {
-        this.productRepository = productRepository;
-    }
 
     @Transactional(readOnly = true)
     public Optional<Product> findById(UUID id) {

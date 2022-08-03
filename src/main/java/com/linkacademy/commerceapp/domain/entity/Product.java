@@ -5,18 +5,16 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.Table;
+import javax.persistence.*;
 
 @Table
 @Entity
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@EqualsAndHashCode(callSuper = true)
+@EqualsAndHashCode(callSuper = true, onlyExplicitlyIncluded = true)
 public class Product extends EntityWithUUID {
+    @EqualsAndHashCode.Include
     private String name;
     private String description;
     private long price;
@@ -26,4 +24,7 @@ public class Product extends EntityWithUUID {
     @Enumerated(EnumType.STRING)
     private Brand brand;
     private long quantityInStock;
+    @OneToOne(cascade = CascadeType.ALL)
+    @PrimaryKeyJoinColumn
+    private BasketItem basketItem;
 }
