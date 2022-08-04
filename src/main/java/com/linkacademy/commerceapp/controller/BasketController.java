@@ -4,11 +4,11 @@ import com.linkacademy.commerceapp.domain.entity.Basket;
 import com.linkacademy.commerceapp.models.ItemRequest;
 import com.linkacademy.commerceapp.service.BasketService;
 import lombok.AllArgsConstructor;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletResponse;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.UUID;
@@ -20,34 +20,36 @@ public class BasketController {
     private final BasketService basketService;
 
     @GetMapping
-    public ResponseEntity<Basket> getBasket(@CookieValue(value = "buyerId", required = false) UUID buyerId,  HttpServletResponse httpServletResponse) {
+    public ResponseEntity<Basket> getBasket(@CookieValue(value = "buyerId", required = false) UUID buyerId) {
         if (buyerId == null || buyerId.toString().isBlank() || buyerId.toString().isEmpty()) {
-            UUID buyerIdentity = UUID.randomUUID();
-            buyerId = buyerIdentity;
-            httpServletResponse.addCookie(new Cookie("buyerId", buyerIdentity.toString()));
+            buyerId = UUID.randomUUID();
         }
 
-        return ResponseEntity.ok(basketService.findOrCreateBasket(buyerId));
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Set-Cookie","buyerId=" + buyerId +";Max-Age=604800; Path=/; Secure; HttpOnly");
+
+        return ResponseEntity.status(HttpStatus.OK).headers(headers).body(basketService.findOrCreateBasket(buyerId));
     }
 
     @PostMapping
     private ResponseEntity<Basket> addItemToBasket(
-            @CookieValue("buyerId") UUID buyerId,
-            HttpServletResponse httpServletResponse,
+            @CookieValue(value = "buyerId", required = false) UUID buyerId,
             @RequestBody ItemRequest itemRequest) throws URISyntaxException {
 
         if (buyerId == null || buyerId.toString().isBlank() || buyerId.toString().isEmpty()) {
-            UUID buyerIdentity = UUID.randomUUID();
-            buyerId = buyerIdentity;
-            httpServletResponse.addCookie(new Cookie("buyerId", buyerIdentity.toString()));
+            buyerId = UUID.randomUUID();
         }
 
         Basket basket = basketService.addItem(buyerId,
                 itemRequest.getProductId(),
                 itemRequest.getQuantity());
 
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Set-Cookie","buyerId=" + buyerId +";Max-Age=604800; Path=/; Secure; HttpOnly");
+
         return ResponseEntity
                 .created(new URI("commerce/api/basket"))
+                .headers(headers)
                 .body(basket);
     }
 

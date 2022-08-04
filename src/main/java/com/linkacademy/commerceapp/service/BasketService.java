@@ -42,13 +42,13 @@ public class BasketService {
 
             BasketItem basketItem = new BasketItem(optionalProduct.get(), basket, quantity);
             basketItems.add(basketItem);
+        } else {
+            basketItems
+                    .stream()
+                    .filter(basketItem -> basketItem.getProduct().getId().equals(productId))
+                    .findFirst()
+                    .ifPresent(basketItem -> basketItem.setQuantity(basketItem.getQuantity() + quantity));
         }
-
-        basketItems
-                .stream()
-                .filter(basketItem -> basketItem.getProduct().getId().equals(productId))
-                .findFirst()
-                .ifPresent(basketItem -> basketItem.setQuantity(basketItem.getQuantity() + quantity));
 
         basketRepository.save(basket);
 
