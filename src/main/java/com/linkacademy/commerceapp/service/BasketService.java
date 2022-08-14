@@ -36,6 +36,7 @@ public class BasketService {
 
         Set<BasketItem> basketItems = basket.getItems();
 
+
         if (basketItems
                 .stream()
                 .noneMatch(basketItem -> basketItem.getProduct().getId().equals(productId))) {

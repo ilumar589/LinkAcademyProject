@@ -56,10 +56,9 @@ public class BasketController {
     @DeleteMapping
     private ResponseEntity<Basket> removeItemFromBasket(
             @CookieValue("buyerId") UUID buyerId,
-            @RequestBody ItemRequest itemRequest) throws URISyntaxException {
+            @RequestBody ItemRequest itemRequest) {
         return ResponseEntity
-                .created(new URI("commerce/api/basket"))
-                .body(basketService.removeItem(buyerId,
+                .ok(basketService.removeItem(buyerId,
                         itemRequest.getProductId(),
                         itemRequest.getQuantity()));
     }
