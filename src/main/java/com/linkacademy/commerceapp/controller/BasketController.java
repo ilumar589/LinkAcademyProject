@@ -53,13 +53,11 @@ public class BasketController {
                 .body(basket);
     }
 
-    @DeleteMapping
+    @DeleteMapping("/{productId}/{quantity}")
     private ResponseEntity<Basket> removeItemFromBasket(
             @CookieValue("buyerId") UUID buyerId,
-            @RequestBody ItemRequest itemRequest) {
-        return ResponseEntity
-                .ok(basketService.removeItem(buyerId,
-                        itemRequest.getProductId(),
-                        itemRequest.getQuantity()));
+            @PathVariable("productId") UUID productId,
+            @PathVariable("quantity") long quantity) {
+        return ResponseEntity.ok(basketService.removeItem(buyerId, productId, quantity));
     }
 }
