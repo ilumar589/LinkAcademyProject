@@ -9,7 +9,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
-import java.util.HashSet;
+import java.util.Collections;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -85,6 +85,6 @@ public class BasketService {
 
     public Basket findOrCreateBasket(UUID buyerId) {
         Optional<Basket> optionalBasket = basketRepository.findBasketByBuyerId(buyerId);
-        return optionalBasket.orElseGet(() -> basketRepository.save(new Basket(buyerId, new HashSet<>())));
+        return optionalBasket.orElseGet(() -> basketRepository.save(new Basket(buyerId, Collections.emptySet())));
     }
 }

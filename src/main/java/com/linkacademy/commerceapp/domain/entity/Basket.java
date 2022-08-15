@@ -11,7 +11,6 @@ import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
-import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
@@ -25,7 +24,7 @@ public class Basket extends EntityWithUUID {
     @Type(type = "pg-uuid")
     @EqualsAndHashCode.Include
     private UUID buyerId;
-    @OneToMany(mappedBy = "basket", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "basket", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
-    private Set<BasketItem> items = new HashSet<>();
+    private Set<BasketItem> items;
 }
