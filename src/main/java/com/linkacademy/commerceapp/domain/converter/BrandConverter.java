@@ -9,11 +9,11 @@ import javax.persistence.Converter;
 public class BrandConverter implements AttributeConverter<Brand, String> {
     @Override
     public String convertToDatabaseColumn(Brand brand) {
-        return null;
+        return brand.getDescription();
     }
 
     @Override
-    public Brand convertToEntityAttribute(String s) {
-        return null;
+    public Brand convertToEntityAttribute(String description) {
+        return Brand.from(description);
     }
 }

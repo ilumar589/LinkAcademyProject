@@ -8,6 +8,7 @@ public enum Brand {
     KOKUYO("Kokuyo"),
     INTERNATIONAL_PAPER("International Paper"),
     WILDCRAFT_BACKPACK("Wildcraft Backpack"),
+    MCGRAW_HILL_EDUCATION("McGraw-Hill Education"),
     UNKNOWN_BRAND("Unknown brand");
 
     private final String description;
