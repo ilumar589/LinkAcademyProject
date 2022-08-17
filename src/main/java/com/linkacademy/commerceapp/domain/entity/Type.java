@@ -6,8 +6,8 @@ import org.apache.commons.lang3.StringUtils;
 public enum Type {
     WRITING("Writing"),
     READING("Reading"),
-    CARRY("Carry");
-
+    CARRY("Carry"),
+    UNKNOWN_TYPE("Unknown type");
     private final String description;
 
     Type(String description) {
