@@ -6,7 +6,9 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.OneToOne;
+import javax.persistence.Table;
 
 @Table
 @Entity
@@ -20,9 +22,7 @@ public class Product extends EntityWithUUID {
     private String description;
     private long price;
     private String pictureUrl;
-    @Enumerated(EnumType.STRING)
     private Type type;
-    @Enumerated(EnumType.STRING)
     private Brand brand;
     private long quantityInStock;
     @JsonIgnore

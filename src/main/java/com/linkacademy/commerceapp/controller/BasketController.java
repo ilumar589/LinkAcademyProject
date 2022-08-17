@@ -41,8 +41,8 @@ public class BasketController {
         }
 
         Basket basket = basketService.addItem(buyerId,
-                itemRequest.getProductId(),
-                itemRequest.getQuantity());
+                itemRequest.productId(),
+                itemRequest.quantity());
 
         HttpHeaders headers = new HttpHeaders();
         headers.add("Set-Cookie","buyerId=" + buyerId +";Max-Age=604800; Path=/; Secure; HttpOnly");
