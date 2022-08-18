@@ -1,6 +1,7 @@
 package com.linkacademy.commerceapp.controller;
 
 import com.linkacademy.commerceapp.domain.entity.Product;
+import com.linkacademy.commerceapp.models.ProductFilterOptions;
 import com.linkacademy.commerceapp.models.ProductsFilter;
 import com.linkacademy.commerceapp.service.ProductService;
 import lombok.AllArgsConstructor;
@@ -30,15 +31,15 @@ public class ProductController {
 
     @PostMapping("/products")
     public ResponseEntity<Page<Product>> findAllFiltered(
-            @PageableDefault(size = 5, sort = "name", direction = Sort.Direction.ASC) Pageable pageable,
+            @PageableDefault(size = 6, sort = "name", direction = Sort.Direction.ASC) Pageable pageable,
             @RequestBody ProductsFilter productsFilter
     ) {
         Page<Product> searchedProducts = productService.findAllFiltered(pageable, productsFilter);
-
-        if (searchedProducts == null || searchedProducts.isEmpty()) {
-            return ResponseEntity.notFound().build();
-        }
-
         return ResponseEntity.ok(searchedProducts);
+    }
+
+    @GetMapping("/products/filter")
+    public ResponseEntity<ProductFilterOptions> findFilterOptions() {
+        return ResponseEntity.ok(productService.findFilterOptions());
     }
 }

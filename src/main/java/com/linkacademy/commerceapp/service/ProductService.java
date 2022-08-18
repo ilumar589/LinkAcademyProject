@@ -4,6 +4,7 @@ import com.linkacademy.commerceapp.domain.entity.Brand;
 import com.linkacademy.commerceapp.domain.entity.Product;
 import com.linkacademy.commerceapp.domain.entity.Type;
 import com.linkacademy.commerceapp.domain.repository.ProductRepository;
+import com.linkacademy.commerceapp.models.ProductFilterOptions;
 import com.linkacademy.commerceapp.models.ProductsFilter;
 import lombok.AllArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
@@ -17,6 +18,7 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -47,6 +49,16 @@ public class ProductService {
 
             return criteriaBuilder.and(predicates.toArray(new Predicate[]{}));
         }, pageable);
+    }
+
+    @Transactional(readOnly = true)
+    public ProductFilterOptions findFilterOptions() {
+        CompletableFuture<Set<Type>> typesFuture = CompletableFuture.supplyAsync(productRepository::findDistinctProductTypes);
+        CompletableFuture<Set<Brand>> brandsFuture = CompletableFuture.supplyAsync(productRepository::findDistinctProductBrands);
+
+        CompletableFuture.allOf(typesFuture, brandsFuture).join();
+
+        return new ProductFilterOptions(typesFuture.join(), brandsFuture.join());
     }
 
     private Optional<Predicate> searchByName(Root<Product> root, CriteriaBuilder criteriaBuilder, String productName) {
