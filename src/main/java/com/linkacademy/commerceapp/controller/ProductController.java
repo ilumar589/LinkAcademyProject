@@ -16,7 +16,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("commerce/api/catalog")
+@RequestMapping("commerce/api/public/catalog")
 @AllArgsConstructor
 public class ProductController {
     private final ProductService productService;

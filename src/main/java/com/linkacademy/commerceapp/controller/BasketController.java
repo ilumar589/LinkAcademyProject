@@ -14,7 +14,7 @@ import java.net.URISyntaxException;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("commerce/api/basket")
+@RequestMapping("commerce/api/public/basket")
 @AllArgsConstructor
 public class BasketController {
     private final BasketService basketService;

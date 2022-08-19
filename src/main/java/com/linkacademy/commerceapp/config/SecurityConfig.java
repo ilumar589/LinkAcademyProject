@@ -1,7 +1,11 @@
 package com.linkacademy.commerceapp.config;
 
+import com.linkacademy.commerceapp.security.SecurityUserDetailsService;
+import com.linkacademy.commerceapp.security.jwt.AuthEntryPointJwt;
+import com.linkacademy.commerceapp.security.jwt.AuthTokenFilter;
+import com.linkacademy.commerceapp.security.jwt.JWTUtils;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -10,27 +14,31 @@ import org.springframework.security.config.annotation.authentication.configurati
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
-import javax.validation.constraints.NotNull;
-
 @Configuration
 @EnableWebSecurity
-@EnableGlobalMethodSecurity(prePostEnabled = true)
-public class BasicAuthSecurityConfig implements WebMvcConfigurer  {
+@EnableGlobalMethodSecurity(
+        securedEnabled = true,
+        jsr250Enabled = true,
+        prePostEnabled = true
+)
+@RequiredArgsConstructor
+public class SecurityConfig implements WebMvcConfigurer  {
+    private final SecurityUserDetailsService securityUserDetailsService;
+    private final JWTUtils jwtUtils;
+    private final AuthEntryPointJwt unauthorizedEntryPoint;
 
-
-    @NotNull
-    @Value("${commerce.security.user.name}")
-    private String userName;
-
-    @NotNull
-    @Value("${commerce.security.user.password}")
-    private String userPassword;
+    @Bean
+    public AuthTokenFilter authenticationJwtTokenFilter() {
+        return new AuthTokenFilter(jwtUtils, securityUserDetailsService);
+    }
 
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
@@ -43,8 +51,8 @@ public class BasicAuthSecurityConfig implements WebMvcConfigurer  {
     }
 
     @Autowired
-    public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
-        auth.inMemoryAuthentication().withUser(userName).password(new BCryptPasswordEncoder().encode(userPassword)).roles("ADMIN_ROLE");
+    public void configure(AuthenticationManagerBuilder auth) throws Exception {
+        auth.userDetailsService(securityUserDetailsService).passwordEncoder(passwordEncoder());
     }
 
     @Override
@@ -61,13 +69,13 @@ public class BasicAuthSecurityConfig implements WebMvcConfigurer  {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .cors().and().csrf().disable()
-                .anonymous();
-//                .authorizeRequests()
-//                .antMatchers(UrlMapping.AUTH + UrlMapping.SIGN_UP).permitAll()
-//                .antMatchers(UrlMapping.AUTH + UrlMapping.LOGIN).permitAll()
-//                .antMatchers(UrlMapping.VALIDATE_JWT).permitAll()
-//                .antMatchers("/swagger-ui/**").permitAll()
-//                .anyRequest().authenticated().and().httpBasic();
+                .exceptionHandling().authenticationEntryPoint(unauthorizedEntryPoint).and()
+                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
+                .authorizeRequests().antMatchers("/commerce/api/auth/**").anonymous()
+                .antMatchers("/commerce/api/public/**").anonymous()
+                .anyRequest().authenticated();
+
+        http.addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
