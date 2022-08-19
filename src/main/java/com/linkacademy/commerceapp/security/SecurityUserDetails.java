@@ -10,10 +10,12 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.UUID;
 
 @NoArgsConstructor
 @AllArgsConstructor
 public class SecurityUserDetails implements UserDetails {
+    private UUID id;
     private String email;
     @JsonIgnore
     private String password;
@@ -27,6 +29,7 @@ public class SecurityUserDetails implements UserDetails {
                 .toList();
 
         return new SecurityUserDetails(
+                user.getId(),
                 user.getEmail(),
                 user.getPassword(),
                 grantedAuthorities
@@ -66,5 +69,9 @@ public class SecurityUserDetails implements UserDetails {
     @Override
     public boolean isEnabled() {
         return true;
+    }
+
+    public UUID getId() {
+        return id;
     }
 }

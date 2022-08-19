@@ -1,6 +1,7 @@
 package com.linkacademy.commerceapp.security.jwt;
 
 import io.jsonwebtoken.*;
+import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.security.SignatureException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -9,14 +10,15 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
+import javax.crypto.SecretKey;
 import java.util.Date;
 
 @Component
 public class JWTUtils {
     private static final Logger logger = LoggerFactory.getLogger(JWTUtils.class);
 
-    @Value("${commerce.app.jwtSecret}")
-    private String jwtSecret;
+    // this should be stored correctly, but it works for the purposes of the project
+    private static final SecretKey secretKey =  Keys.secretKeyFor(SignatureAlgorithm.HS512);
 
     @Value("${commerce.app.jwtExpirationMs}")
     private int jwtExpirationMs;
@@ -28,17 +30,27 @@ public class JWTUtils {
                 .setSubject((userPrincipal.getUsername()))
                 .setIssuedAt(new Date())
                 .setExpiration(new Date((new Date()).getTime() + jwtExpirationMs))
-                .signWith(SignatureAlgorithm.HS512, jwtSecret)
+                .signWith(secretKey)
                 .compact();
     }
 
     public String getUserNameFromJwtToken(String token) {
-        return Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(token).getBody().getSubject();
+        return Jwts
+                .parserBuilder()
+                .setSigningKey(secretKey)
+                .build()
+                .parseClaimsJws(token)
+                .getBody()
+                .getSubject();
     }
 
     public boolean validateJwtToken(String authToken) {
         try {
-            Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(authToken);
+            Jwts
+                    .parserBuilder()
+                    .setSigningKey(secretKey)
+                    .build()
+                    .parseClaimsJws(authToken);
             return true;
         } catch (SignatureException e) {
             logger.error("Invalid JWT signature: {}", e.getMessage());
