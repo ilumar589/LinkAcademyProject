@@ -1,5 +1,6 @@
 package com.linkacademy.commerceapp.controller;
 
+import com.linkacademy.commerceapp.domain.entity.CommerceRole;
 import com.linkacademy.commerceapp.domain.entity.Role;
 import com.linkacademy.commerceapp.domain.entity.User;
 import com.linkacademy.commerceapp.domain.repository.RoleRepository;
@@ -58,6 +59,11 @@ public class AuthController {
             return ResponseEntity
                     .badRequest()
                     .body(new MessageResponse("Error: Username is already taken!"));
+        }
+
+        if (signUpRequest.role() == null) {
+            // add default user role
+            signUpRequest = new SignupRequest(signUpRequest.email(), signUpRequest.password(), CommerceRole.ROLE_USER);
         }
 
         Optional<Role> sentRole = roleRepository.findByCommerceRole(signUpRequest.role());
